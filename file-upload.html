@@ -1,0 +1,52 @@
+<html>
+	<head>
+		<script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	</head>
+	<body style="text-align: center;">
+		<h2>File Manager</h2>
+		</br>
+		<form id = "uploadform" enctype="multipart/form-data">
+			<input type = "file" id = "uploadfile" name = "uploadfile">
+			<input type = "button" id = "upload" value = "Upload">
+		</form>
+		</br>
+		<div id = "status" style = "color: red"></div>
+		<div id = "progresspercentage" style = "color: darkblue"></div>
+	</body>
+	<script>
+		$("#upload").click(function(e){
+			e.preventDefault();
+			var form = $("#uploadform")[0];
+			var data = new FormData(form);
+			$.ajax(
+				{
+					url: "http://localhost:5000/v1/file",
+					processData: false,
+					data: data,
+					method: "POST",
+					cache: false,
+					contentType: false,
+					success: function(response){
+						$("#status").html(response.status);
+					},
+					error: function(){
+						$("#status").html("Something went wrong!");
+					},
+					xhr: function(){
+						var xhr = new window.XMLHttpRequest();
+						xhr.upload.addEventListener("progress", function(event){
+							if(event.lengthComputable){
+								$("#progresspercentage").html(Number.parseInt((event.loaded/event.total) * 100) + "%");
+							}
+						});
+						return xhr;
+					}
+				}
+			);
+		});
+		$("#uploadfile").click(function(e){
+			$("#status").html("");
+			$("#progresspercentage").html("");
+		});
+	</script>
+</html>
