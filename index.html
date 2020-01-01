@@ -2,7 +2,7 @@
 	<head>
 		<script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	</head>
-	<body style="text-align: center;">
+	<body style="text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 		<h2>File Manager</h2>
 		</br>
 		<form id = "uploadform" enctype="multipart/form-data">
@@ -10,13 +10,32 @@
 			<input type = "button" id = "upload" value = "Upload">
 		</form>
 		</br>
-		<div id = "status" style = "color: red"></div>
+		
+		<table align="center">
+			<tr>
+				<td>
+					<div id = "status" style = "color: red"></div>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div id = "progressBarOuter" style = "width: 400px; height: 20px; padding: 2px; border: 1px solid red; border-radius: 5px;">
+						<div id = "progressBarInner" style="height: 20px; background-color: red; border-radius: 5px;"></div>
+					</div>
+				</td>
+			</tr>
+		</table>
 	</body>
 	<script>
+		$(window).ready(function(){
+			$("#status").hide();
+			$("#progressBarOuter").hide();
+		});
 		$("#upload").click(function(e){
 			e.preventDefault();
 			var form = $("#uploadform")[0];
 			var data = new FormData(form);
+			$("#progressBarOuter").hide();
 			$.ajax(
 				{
 					url: "http://localhost:5000/v1/file",
@@ -26,16 +45,22 @@
 					cache: false,
 					contentType: false,
 					success: function(response){
+						$("#progressBarOuter").hide();
+						$("#status").show();
 						$("#status").html(response.status);
 					},
 					error: function(){
+						$("#progressBarOuter").hide();
+						$("#status").show();
 						$("#status").html("Something went wrong!");
 					},
 					xhr: function(){
 						var xhr = new window.XMLHttpRequest();
 						xhr.upload.addEventListener("progress", function(event){
 							if(event.lengthComputable){
-								$("#status").html(Number.parseInt((event.loaded/event.total) * 100) + "%");
+								$("#status").hide();
+								$("#progressBarOuter").show();
+								$("#progressBarInner").width(Number.parseInt((event.loaded/event.total) * 100) + "%");
 							}
 						});
 						return xhr;
@@ -44,8 +69,8 @@
 			);
 		});
 		$("#uploadfile").click(function(e){
-			$("#status").html("");
-			$("#progresspercentage").html("");
+			$("#status").hide();
+			$("#progressBarOuter").hide();
 		});
 	</script>
 </html>
